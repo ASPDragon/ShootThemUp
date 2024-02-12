@@ -2,6 +2,7 @@
 
 #include "Components/STUHealthComponent.h"
 #include "GameFramework/Actor.h"
+#include "Engine/World.h"
 #include "Misc/DateTime.h"
 #include "Misc/Timespan.h"
 #include <cmath>
@@ -21,7 +22,14 @@ void USTUHealthComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-    OnDamageStop();
+	if (!AutoHeal)
+    {
+        StartAutoHeal();
+    }
+    else
+    {
+        OnHealthRestoration();
+    }
 }
 
 // Called when the game starts
@@ -61,7 +69,7 @@ void USTUHealthComponent::OnTakeAnyDamage(
     }
 }
 
-void USTUHealthComponent::OnDamageStop()
+void USTUHealthComponent::StartAutoHeal()
 {
     //    float Milliseconds;
     //    std::modf(HealDelay, &Milliseconds);
@@ -69,21 +77,23 @@ void USTUHealthComponent::OnDamageStop()
     //    int32 Seconds = dynamic_cast<int32>(HealDelay);
     //    int32 MSeconds = dynamic_cast<int32>(Milliseconds);
 
-    if ((FDateTime::Now() - LastHitTime) >= FTimespan::FromMilliseconds(HealDelay * 1000))
+    if ((FDateTime::Now() - LastHitTime) <= FTimespan::FromMilliseconds(HealDelay * 1000))
     {
-        AutoHeal = true;
-        UE_LOG(LogHealthComponent, Display, TEXT("Autoheal = %d"), AutoHeal);
+        return;
     }
+    AutoHeal = true;
 }
 
 void USTUHealthComponent::OnHealthRestoration()
 {
     if (Health == MaxHealth)
     {
-        return;
+        AutoHeal = false;
     }
     if (AutoHeal)
     {
-        UE_LOG(LogHealthComponent, Display, TEXT("You are regenerating!"));
+        Health = FMath::Clamp(Health + HealModifier, 0.0f, MaxHealth);
+        OnHealthChanged.Broadcast(Health);
+        UE_LOG(LogHealthComponent, Display, TEXT("Healed %f"), HealModifier);
     }
 }

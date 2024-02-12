@@ -36,16 +36,16 @@ protected:
     float MaxHealth = 100.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Heal")
-    bool AutoHeal = false;
+    bool AutoHeal = true;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Heal")
-    float HealUpdateTime = 0.3f;
+    float HealUpdateTime = 1.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Heal")
     float HealDelay = 3.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Heal")
-    float HealModifier = 1.0f;
+    float HealModifier = 5.0f;
 
 	UPROPERTY()
     FDateTime LastHitTime;
@@ -54,13 +54,14 @@ protected:
 
 private:
     float Health = 0.0f;
+    // FTimerHandle HealTimerHandle;
 
     UFUNCTION()
     void OnTakeAnyDamage(
         AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
 	UFUNCTION()
-    void OnDamageStop();
+    void StartAutoHeal();
 
 	UFUNCTION()
     void OnHealthRestoration();
