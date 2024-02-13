@@ -22,13 +22,21 @@ void USTUHealthComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	FDateTime LastHealTime;
+
 	if (!AutoHeal)
     {
         StartAutoHeal();
     }
     else
     {
-        OnHealthRestoration();
+        if (FDateTime::Now() - LastHealTime <= FTimespan::FromSeconds(HealUpdateTime))
+        {
+            return;
+        }
+        OnHealthRestoration(DeltaTime);
+        LastHealTime = FDateTime::Now();
+        // UE_LOG(LogHealthComponent, Display, TEXT("%s"), *LastHealTime.ToString());
     }
 }
 
@@ -37,11 +45,7 @@ void USTUHealthComponent::BeginPlay()
 {
     Super::BeginPlay();
 
-    // GetOwner()->GetWorldTimerManager().SetTimer(;
-
-    Health = MaxHealth;
-    OnHealthChanged.Broadcast(Health);
-
+    SetHealth(MaxHealth);
     AActor* ComponentOwner = GetOwner();
 
     if (ComponentOwner)
@@ -58,8 +62,7 @@ void USTUHealthComponent::OnTakeAnyDamage(
         return;
     }
 
-    Health = FMath::Clamp(Health - Damage, 0.0f, MaxHealth);
-    OnHealthChanged.Broadcast(Health);
+    SetHealth(Health - Damage);
     LastHitTime = FDateTime::Now();
     AutoHeal = false;
 
@@ -71,29 +74,28 @@ void USTUHealthComponent::OnTakeAnyDamage(
 
 void USTUHealthComponent::StartAutoHeal()
 {
-    //    float Milliseconds;
-    //    std::modf(HealDelay, &Milliseconds);
-
-    //    int32 Seconds = dynamic_cast<int32>(HealDelay);
-    //    int32 MSeconds = dynamic_cast<int32>(Milliseconds);
-
-    if ((FDateTime::Now() - LastHitTime) <= FTimespan::FromMilliseconds(HealDelay * 1000))
+    if ((FDateTime::Now() - LastHitTime) <= FTimespan::FromSeconds(HealDelay))
     {
         return;
     }
     AutoHeal = true;
 }
 
-void USTUHealthComponent::OnHealthRestoration()
+void USTUHealthComponent::OnHealthRestoration(float DeltaTime)
 {
-    if (Health == MaxHealth)
+    if (FMath::IsNearlyEqual(Health, MaxHealth))
     {
         AutoHeal = false;
     }
     if (AutoHeal)
     {
-        Health = FMath::Clamp(Health + HealModifier, 0.0f, MaxHealth);
-        OnHealthChanged.Broadcast(Health);
+		// Health + (FPS * HealthModifier) * DeltaTime
+        SetHealth(Health + HealModifier);
         UE_LOG(LogHealthComponent, Display, TEXT("Healed %f"), HealModifier);
     }
+}
+
+void USTUHealthComponent::SetHealth(float NewHealth) {
+    Health = FMath::Clamp(NewHealth, 0.0f, MaxHealth);
+    OnHealthChanged.Broadcast(Health);
 }
