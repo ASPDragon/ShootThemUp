@@ -23,10 +23,10 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-    float GetHealth() const { return FMath::IsNearlyZero(Health); }
+    float GetHealth() const { return Health; }
 
 	UFUNCTION(BlueprintCallable)
-    bool IsDead() const { return Health <= 0.0f; }
+    bool IsDead() const {return FMath::IsNearlyZero(Health); }
 
 	FOnDeath OnDeath;
     FOnHealthChanged OnHealthChanged;
