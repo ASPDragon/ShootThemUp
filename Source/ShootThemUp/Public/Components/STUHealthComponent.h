@@ -9,8 +9,8 @@
 
 struct FDateTime;
 
-DECLARE_MULTICAST_DELEGATE(FOnDeath)
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnHealthChanged, float)
+DECLARE_MULTICAST_DELEGATE(FOnDeathSignature);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnHealthChangedSignature, float);
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class SHOOTTHEMUP_API USTUHealthComponent : public UActorComponent
@@ -20,16 +20,18 @@ class SHOOTTHEMUP_API USTUHealthComponent : public UActorComponent
 public:
     USTUHealthComponent();
 
+	FOnDeathSignature OnDeath;
+    FOnHealthChangedSignature OnHealthChanged;
+
+	UFUNCTION(BlueprintCallable, Category = "Health")
+    bool IsDead() const { return FMath::IsNearlyZero(Health); }
+
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
     float GetHealth() const { return Health; }
+    float GetMaxHealth() const { return MaxHealth; }
 
-	UFUNCTION(BlueprintCallable)
-    bool IsDead() const {return FMath::IsNearlyZero(Health); }
-
-	FOnDeath OnDeath;
-    FOnHealthChanged OnHealthChanged;
 
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health", meta = (ClampMin = "0.0", ClampMax = "1000.0"))
@@ -47,8 +49,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Heal")
     float HealModifier = 5.0f;
 
-	UPROPERTY()
-    FDateTime LastHitTime;
+    FDateTime LastHitTime = 0;
+    FDateTime LastHealTime = 0;
 
     virtual void BeginPlay() override;
 

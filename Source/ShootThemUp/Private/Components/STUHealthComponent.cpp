@@ -22,21 +22,17 @@ void USTUHealthComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	FDateTime LastHealTime;
-
 	if (!AutoHeal)
     {
         StartAutoHeal();
     }
     else
     {
-        if (FDateTime::Now() - LastHealTime <= FTimespan::FromSeconds(HealUpdateTime))
+        if (FDateTime::Now() - LastHealTime >= FTimespan::FromSeconds(HealUpdateTime))
         {
-            return;
+            OnHealthRestoration(DeltaTime);
+            LastHealTime = FDateTime::Now();
         }
-        OnHealthRestoration(DeltaTime);
-        LastHealTime = FDateTime::Now();
-        // UE_LOG(LogHealthComponent, Display, TEXT("%s"), *LastHealTime.ToString());
     }
 }
 
@@ -74,7 +70,7 @@ void USTUHealthComponent::OnTakeAnyDamage(
 
 void USTUHealthComponent::StartAutoHeal()
 {
-    if ((FDateTime::Now() - LastHitTime) <= FTimespan::FromSeconds(HealDelay))
+    if ((FDateTime::Now() - LastHitTime) <= FTimespan::FromSeconds(HealDelay) || IsDead())
     {
         return;
     }
