@@ -30,7 +30,7 @@ void USTUHealthComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
     {
         if (FDateTime::Now() - LastHealTime >= FTimespan::FromSeconds(HealUpdateTime))
         {
-            OnHealthRestoration(DeltaTime);
+            OnHealthRestoration();
             LastHealTime = FDateTime::Now();
         }
     }
@@ -77,7 +77,7 @@ void USTUHealthComponent::StartAutoHeal()
     AutoHeal = true;
 }
 
-void USTUHealthComponent::OnHealthRestoration(float DeltaTime)
+void USTUHealthComponent::OnHealthRestoration()
 {
     if (FMath::IsNearlyEqual(Health, MaxHealth))
     {

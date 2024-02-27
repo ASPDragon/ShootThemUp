@@ -8,6 +8,8 @@
 #include "Components/STUHealthComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "GameFramework/Controller.h"
+#include "Components/CapsuleComponent.h"
+#include "Components/STUWeaponComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogBaseCharacter, All, All);
 
@@ -21,6 +23,7 @@ ASTUBaseCharacter::ASTUBaseCharacter(const FObjectInitializer& ObjInit)
     SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>("SpringArmComponent");
     SpringArmComponent->SetupAttachment(GetRootComponent());
     SpringArmComponent->bUsePawnControlRotation = true;
+    SpringArmComponent->SocketOffset = FVector(0.0f, 100.0f, 80.0f);
 
     CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
     CameraComponent->SetupAttachment(SpringArmComponent);
@@ -29,6 +32,9 @@ ASTUBaseCharacter::ASTUBaseCharacter(const FObjectInitializer& ObjInit)
 
     HealthTextComponent = CreateDefaultSubobject<UTextRenderComponent>("HealthTextComponent");
     HealthTextComponent->SetupAttachment(GetRootComponent());
+    HealthTextComponent->SetOwnerNoSee(true);
+
+    WeaponComponent = CreateDefaultSubobject<USTUWeaponComponent>("WeaponComponent");
 }
 
 // Called when the game starts or when spawned
@@ -40,11 +46,11 @@ void ASTUBaseCharacter::BeginPlay()
     check(HealthTextComponent);
     check(GetCharacterMovement());
 
-	OnHealthChanged(HealthComponent->GetHealth());
+    OnHealthChanged(HealthComponent->GetHealth());
     HealthComponent->OnDeath.AddUObject(this, &ASTUBaseCharacter::OnDeath);
     HealthComponent->OnHealthChanged.AddUObject(this, &ASTUBaseCharacter::OnHealthChanged);
 
-	LandedDelegate.AddDynamic(this, &ASTUBaseCharacter::OnGroundLanded);
+    LandedDelegate.AddDynamic(this, &ASTUBaseCharacter::OnGroundLanded);
 }
 
 // Called every frame
@@ -57,7 +63,9 @@ void ASTUBaseCharacter::Tick(float DeltaTime)
 void ASTUBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
     Super::SetupPlayerInputComponent(PlayerInputComponent);
+    
     check(PlayerInputComponent);
+    check(WeaponComponent);
 
     PlayerInputComponent->BindAxis("MoveForward", this, &ASTUBaseCharacter::MoveForward);
     PlayerInputComponent->BindAxis("MoveRight", this, &ASTUBaseCharacter::MoveRight);
@@ -66,6 +74,10 @@ void ASTUBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
     PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ASTUBaseCharacter::Jump);
     PlayerInputComponent->BindAction("Run", IE_Pressed, this, &ASTUBaseCharacter::OnStartRunning);
     PlayerInputComponent->BindAction("Run", IE_Released, this, &ASTUBaseCharacter::OnStopRunning);
+    PlayerInputComponent->BindAction("Fire", IE_Pressed, WeaponComponent, &USTUWeaponComponent::StartFire);
+    PlayerInputComponent->BindAction("Fire", IE_Released, WeaponComponent, &USTUWeaponComponent::StopFire);
+    PlayerInputComponent->BindAction("NextWeapon", IE_Pressed, WeaponComponent, &USTUWeaponComponent::NextWeapon);
+    PlayerInputComponent->BindAction("Reload", IE_Pressed, WeaponComponent, &USTUWeaponComponent::Reload);
 }
 
 bool ASTUBaseCharacter::IsRunning() const
@@ -115,33 +127,38 @@ void ASTUBaseCharacter::OnStopRunning()
     WantsToRun = false;
 }
 
-void ASTUBaseCharacter::OnDeath() {
+void ASTUBaseCharacter::OnDeath()
+{
     UE_LOG(LogBaseCharacter, Display, TEXT("Player %s is dead"), *GetName());
 
-	PlayAnimMontage(DeathAnimMontage);
+    PlayAnimMontage(DeathAnimMontage);
     GetCharacterMovement()->DisableMovement();
     SetLifeSpan(LifeSpanOnDeath);
 
-	if (Controller)
+    if (Controller)
     {
         Controller->ChangeState(NAME_Spectating);
     }
+
+    GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 }
 
-void ASTUBaseCharacter::OnHealthChanged(float Health) {
+void ASTUBaseCharacter::OnHealthChanged(float Health)
+{
     HealthTextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), Health)));
 }
 
-void ASTUBaseCharacter::OnGroundLanded(const FHitResult& Hit) {
+void ASTUBaseCharacter::OnGroundLanded(const FHitResult& Hit)
+{
     const auto FallVelocityZ = -GetVelocity().Z;
     UE_LOG(LogBaseCharacter, Display, TEXT("On landed: %f"), FallVelocityZ);
 
-	if (FallVelocityZ < LandedDamageVelocity.X)
+    if (FallVelocityZ < LandedDamageVelocity.X)
     {
         return;
     }
 
-	const auto FinalDamage = FMath::GetMappedRangeValueClamped(LandedDamageVelocity, LandedDamage, FallVelocityZ);
+    const auto FinalDamage = FMath::GetMappedRangeValueClamped(LandedDamageVelocity, LandedDamage, FallVelocityZ);
     UE_LOG(LogBaseCharacter, Display, TEXT("Final Damage: %f"), FinalDamage);
     TakeDamage(FinalDamage, FDamageEvent{}, nullptr, nullptr);
 }

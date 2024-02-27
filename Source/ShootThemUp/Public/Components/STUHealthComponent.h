@@ -4,13 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "STUCoreTypes.h"
 #include "STUHealthComponent.generated.h"
 
 
 struct FDateTime;
-
-DECLARE_MULTICAST_DELEGATE(FOnDeathSignature);
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnHealthChangedSignature, float);
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class SHOOTTHEMUP_API USTUHealthComponent : public UActorComponent
@@ -66,7 +64,7 @@ private:
     void StartAutoHeal();
 
 	UFUNCTION()
-    void OnHealthRestoration(float DeltaTime);
+    void OnHealthRestoration();
 
 	void SetHealth(float NewHealth);
 };
