@@ -31,7 +31,7 @@ protected:
     virtual void MakeShot() override;
     virtual void MakeDamage(const FHitResult& HitResult, const FVector& TraceStart, const TSubclassOf<UDamageType>& DamageType);
 
-    bool GetTraceData(FVector& TraceStart, FVector& TraceEnd) const;
+    virtual bool GetTraceData(FVector& TraceStart, FVector& TraceEnd) const override;
 
 private:
     FTimerHandle ShotTimerHandle;

@@ -26,6 +26,7 @@ public:
     bool CanReload() const;
 
     FWeaponUIData GetUIData() const { return UIData; }
+    FAmmoData GetAmmoData() const { return CurrentAmmo; }
 
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
@@ -41,7 +42,7 @@ protected:
     float HeadshotMultiplier = 2.0f;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
-    FAmmoData DefaultAmmo { 30, 10, false };
+    FAmmoData DefaultAmmo { 30, 30, 10, false };
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
     FWeaponUIData UIData;
@@ -53,7 +54,7 @@ protected:
 
     APlayerController* GetPlayerController() const;
     bool GetPlayerViewPoint(FVector& ViewLocation, FRotator& FViewRotation) const;
-    bool GetTraceData(FVector& TraceStart, FVector& TraceEnd) const;
+    virtual bool GetTraceData(FVector& TraceStart, FVector& TraceEnd) const;
     FVector GetMuzzleWorldLocation() const;
 
     void DecreaseAmmo();

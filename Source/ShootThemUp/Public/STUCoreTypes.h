@@ -13,7 +13,10 @@ struct FAmmoData
     GENERATED_USTRUCT_BODY()
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
-    int32 Bullets;
+    int32 BulletsInCurrentClip;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
+    int32 BulletsPerClip;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon", meta = (EditCondition = "!Infinite"))
     int32 Clips;

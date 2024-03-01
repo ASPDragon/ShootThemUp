@@ -35,13 +35,13 @@ void ASTUBaseWeapon::ChangeClip()
         CurrentAmmo.Clips--;
     }
     
-    CurrentAmmo.Bullets = DefaultAmmo.Bullets;
+    CurrentAmmo.BulletsInCurrentClip = CurrentAmmo.BulletsPerClip;
     UE_LOG(LogBaseWeapon, Display, TEXT("------ Change Clip ------"));
 }
 
 bool ASTUBaseWeapon::CanReload() const
 {
-    return CurrentAmmo.Bullets < DefaultAmmo.Bullets && CurrentAmmo.Clips > 0;
+    return CurrentAmmo.BulletsInCurrentClip < DefaultAmmo.BulletsInCurrentClip && CurrentAmmo.Clips > 0;
 }
 
 void ASTUBaseWeapon::BeginPlay()
@@ -49,7 +49,8 @@ void ASTUBaseWeapon::BeginPlay()
     Super::BeginPlay();
 
     check(WeaponMesh);
-    checkf(DefaultAmmo.Bullets > 0, TEXT("Bullets count couldn't be less or equal to zero."));
+    checkf(DefaultAmmo.BulletsInCurrentClip > 0, TEXT("Bullets count couldn't be less or equal to zero."));
+    checkf(DefaultAmmo.BulletsPerClip > 0, TEXT("Bullets count in clip couldn't be less or equal to zero."));
     checkf(DefaultAmmo.Clips > 0, TEXT("Clips count couldn't be less or equal to zero."));
     CurrentAmmo = DefaultAmmo;
 }
@@ -111,13 +112,13 @@ FVector ASTUBaseWeapon::GetMuzzleWorldLocation() const
 
 void ASTUBaseWeapon::DecreaseAmmo()
 {
-    if (CurrentAmmo.Bullets == 0)
+    if (CurrentAmmo.BulletsInCurrentClip == 0)
     {
         UE_LOG(LogBaseWeapon, Display, TEXT("Clip is empty."));
         return;
     }
     
-    CurrentAmmo.Bullets--;
+    CurrentAmmo.BulletsInCurrentClip--;
     LogAmmo();
 
     if (IsClipEmpty() && !IsAmmoEmpty())
@@ -129,7 +130,7 @@ void ASTUBaseWeapon::DecreaseAmmo()
 
 void ASTUBaseWeapon::LogAmmo()
 {
-    FString AmmoInfo = "Ammo: " + FString::FromInt(CurrentAmmo.Bullets) + " / ";
+    FString AmmoInfo = "Ammo: " + FString::FromInt(CurrentAmmo.BulletsInCurrentClip) + " / ";
     AmmoInfo += CurrentAmmo.Infinite ? "Infinite" : FString::FromInt(CurrentAmmo.Clips);
     UE_LOG(LogBaseWeapon, Display, TEXT("%s"), *AmmoInfo);
 }
@@ -141,5 +142,5 @@ bool ASTUBaseWeapon::IsAmmoEmpty() const
 
 bool ASTUBaseWeapon::IsClipEmpty() const
 {
-    return CurrentAmmo.Bullets == 0;
+    return CurrentAmmo.BulletsInCurrentClip == 0;
 }

@@ -32,3 +32,17 @@ bool USTUPlayerHUDWidget::GetWeaponUIData(FWeaponUIData& UIData) const
 
     return WeaponComponent->GetWeaponUIData(UIData);
 }
+
+FString USTUPlayerHUDWidget::GetWeaponAmmoData() const
+{
+    const auto Player = GetOwningPlayerPawn();
+
+    if (!Player) return FString::Printf(TEXT(""));
+
+    const auto Component = Player->GetComponentByClass(USTUWeaponComponent::StaticClass());
+    const auto WeaponComponent = Cast<USTUWeaponComponent>(Component);
+
+    if (!WeaponComponent) return FString::Printf(TEXT(""));;
+
+    return WeaponComponent->GetWeaponAmmoData();
+}

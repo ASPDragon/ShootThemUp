@@ -54,6 +54,16 @@ bool USTUWeaponComponent::GetWeaponUIData(FWeaponUIData& UIData) const
     return false;
 }
 
+FString USTUWeaponComponent::GetWeaponAmmoData() const
+{
+    if (CurrentWeapon)
+    {
+        return FString::Printf(TEXT("%d/%d"), CurrentWeapon->GetAmmoData().BulletsInCurrentClip,
+            CurrentWeapon->GetAmmoData().BulletsPerClip * CurrentWeapon->GetAmmoData().Clips);
+    }
+    return FString::Printf(TEXT("-/-"));
+}
+
 void USTUWeaponComponent::BeginPlay()
 {
     Super::BeginPlay();
