@@ -44,7 +44,7 @@ void USTUWeaponComponent::Reload()
     ChangeClip();
 }
 
-bool USTUWeaponComponent::GetWeaponUIData(FWeaponUIData& UIData) const
+bool USTUWeaponComponent::GetCurrentWeaponUIData(FWeaponUIData& UIData) const
 {
     if (CurrentWeapon)
     {
@@ -54,7 +54,7 @@ bool USTUWeaponComponent::GetWeaponUIData(FWeaponUIData& UIData) const
     return false;
 }
 
-FString USTUWeaponComponent::GetWeaponAmmoData() const
+FString USTUWeaponComponent::GetCurrentWeaponAmmoData() const
 {
     if (CurrentWeapon)
     {
@@ -62,6 +62,16 @@ FString USTUWeaponComponent::GetWeaponAmmoData() const
             CurrentWeapon->GetAmmoData().BulletsPerClip * CurrentWeapon->GetAmmoData().Clips);
     }
     return FString::Printf(TEXT("-/-"));
+}
+
+bool USTUWeaponComponent::GetCurrentWeaponAmmoData(FAmmoData& AmmoData) const
+{
+    if (CurrentWeapon)
+    {
+        AmmoData = CurrentWeapon->GetAmmoData();
+        return true;
+    }
+    return false;
 }
 
 void USTUWeaponComponent::BeginPlay()
