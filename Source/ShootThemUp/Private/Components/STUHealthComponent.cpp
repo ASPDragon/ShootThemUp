@@ -36,6 +36,21 @@ void USTUHealthComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
     }
 }
 
+bool USTUHealthComponent::TryToAddHealth(float HealthAmount)
+{
+    if (IsHealthFull() || IsDead() || HealthAmount <= 0) return false;
+    
+    SetHealth(Health + HealthAmount);
+    UE_LOG(LogHealthComponent, Display, TEXT("Health is added!"));
+
+    return true;
+}
+
+bool USTUHealthComponent::IsHealthFull() const
+{
+    return FMath::IsNearlyEqual(Health, MaxHealth);
+}
+
 // Called when the game starts
 void USTUHealthComponent::BeginPlay()
 {
@@ -81,7 +96,7 @@ void USTUHealthComponent::StartAutoHeal()
 
 void USTUHealthComponent::OnHealthRestoration()
 {
-    if (FMath::IsNearlyEqual(Health, MaxHealth))
+    if (IsHealthFull())
     {
         AutoHeal = false;
     }

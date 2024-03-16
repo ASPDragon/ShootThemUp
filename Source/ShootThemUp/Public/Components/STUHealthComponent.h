@@ -33,6 +33,8 @@ public:
     float GetHealth() const { return Health; }
     float GetMaxHealth() const { return MaxHealth; }
 
+    bool TryToAddHealth(float HealthAmount);
+    bool IsHealthFull() const;
 
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health", meta = (ClampMin = "0.0", ClampMax = "1000.0"))
