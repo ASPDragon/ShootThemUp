@@ -3,6 +3,7 @@
 
 #include "Weapon/Components/STUWeaponFXComponent.h"
 #include "NiagaraFunctionLibrary.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
 
 USTUWeaponFXComponent::USTUWeaponFXComponent()
 {
@@ -13,6 +14,6 @@ USTUWeaponFXComponent::USTUWeaponFXComponent()
 
 void USTUWeaponFXComponent::PlayImpactFX(const FHitResult& Hit)
 {
-    UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), Effect,
+    UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), DefaultEffect,
         Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
 }
