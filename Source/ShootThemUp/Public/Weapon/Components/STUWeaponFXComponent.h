@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "STUWeaponFXComponent.generated.h"
 
+class UNiagaraSystem;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SHOOTTHEMUP_API USTUWeaponFXComponent : public UActorComponent
@@ -16,13 +17,9 @@ public:
 	// Sets default values for this component's properties
 	USTUWeaponFXComponent();
 
+    void PlayImpactFX(const FHitResult& Hit);
+
 protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
-
-public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-		
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
+    UNiagaraSystem* Effect;
 };
