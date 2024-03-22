@@ -8,12 +8,21 @@
 USTUWeaponFXComponent::USTUWeaponFXComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
 }
 
 void USTUWeaponFXComponent::PlayImpactFX(const FHitResult& Hit)
 {
-    UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), DefaultEffect,
+    auto Effect = DefaultEffect;
+
+    if (Hit.PhysMaterial.IsValid())
+    {
+        const auto PhysMat = Hit.PhysMaterial.Get();
+        if (EffectsMap.Contains(PhysMat))
+        {
+            Effect = EffectsMap[PhysMat];
+        }
+    }
+    
+    UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), Effect,
         Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
 }
