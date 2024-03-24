@@ -7,7 +7,7 @@
 #include "STUCoreTypes.h"
 #include "STUHealthComponent.generated.h"
 
-
+class UCameraShakeBase;
 struct FDateTime;
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
@@ -52,6 +52,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Heal")
     float HealModifier = 5.0f;
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
+    TSubclassOf<UCameraShakeBase> CameraShake;
+
     FDateTime LastHitTime = 0;
     FDateTime LastHealTime = 0;
 
@@ -72,4 +75,6 @@ private:
     void OnHealthRestoration();
 
 	void SetHealth(float NewHealth);
+
+    void PlayCameraShake();
 };
