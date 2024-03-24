@@ -30,4 +30,12 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "UI")
     bool IsPlayerSpectating() const;
+
+    UFUNCTION(BlueprintImplementableEvent, Category = "UI")
+    void OnTakeDamage();
+
+    virtual bool Initialize() override;
+
+private:
+    void OnHealthChanged(float Health, float HealthDelta);
 };
