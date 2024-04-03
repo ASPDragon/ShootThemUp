@@ -14,7 +14,8 @@ public class ShootThemUp : ModuleRules
             "Engine",
             "InputCore",
             "Niagara",
-            "PhysicsCore"
+            "PhysicsCore",
+            "AIModule"
         });
 
         PrivateDependencyModuleNames.AddRange(new string[] { });
@@ -28,7 +29,8 @@ public class ShootThemUp : ModuleRules
             "ShootThemUp/Public/UI",
             "ShootThemUp/Public/Animations",
             "ShootThemUp/Public/Pickups",
-            "ShootThemUp/Public/Weapon/Components"
+            "ShootThemUp/Public/Weapon/Components",
+            "ShootThemUp/Public/AI"
         });
 
         // Uncomment if you are using Slate UI
