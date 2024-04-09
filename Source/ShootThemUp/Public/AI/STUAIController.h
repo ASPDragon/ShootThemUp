@@ -13,5 +13,7 @@ UCLASS()
 class SHOOTTHEMUP_API ASTUAIController : public AAIController
 {
 	GENERATED_BODY()
-	
+
+protected:
+    virtual void OnPossess(APawn* InPawn) override;
 };
