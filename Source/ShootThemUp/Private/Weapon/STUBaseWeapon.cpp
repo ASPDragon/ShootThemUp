@@ -45,6 +45,11 @@ bool ASTUBaseWeapon::CanReload() const
     return CurrentAmmo.BulletsInCurrentClip < DefaultAmmo.BulletsInCurrentClip && CurrentAmmo.Clips > 0;
 }
 
+bool ASTUBaseWeapon::IsAmmoEmpty() const
+{
+    return !CurrentAmmo.Infinite && CurrentAmmo.Clips == 0 && IsClipEmpty();
+}
+
 bool ASTUBaseWeapon::TryToAddAmmo(int32 ClipsAmount)
 {
     if (CurrentAmmo.Infinite || IsAmmoFull() || ClipsAmount <= 0) return false;
@@ -180,11 +185,6 @@ void ASTUBaseWeapon::LogAmmo()
     FString AmmoInfo = "Ammo: " + FString::FromInt(CurrentAmmo.BulletsInCurrentClip) + " / ";
     AmmoInfo += CurrentAmmo.Infinite ? "Infinite" : FString::FromInt(CurrentAmmo.Clips);
     UE_LOG(LogBaseWeapon, Display, TEXT("%s"), *AmmoInfo);
-}
-
-bool ASTUBaseWeapon::IsAmmoEmpty() const
-{
-    return !CurrentAmmo.Infinite && CurrentAmmo.Clips == 0 && IsClipEmpty();
 }
 
 bool ASTUBaseWeapon::IsClipEmpty() const
