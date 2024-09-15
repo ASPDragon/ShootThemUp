@@ -98,33 +98,6 @@ void USTUWeaponComponent::BeginPlay()
     EquipWeapon(CurrentWeaponIndex);
 }
 
-void USTUWeaponComponent::SpawnWeapons()
-{
-    ACharacter* Character = Cast<ACharacter>(GetOwner());
-
-    if (!Character || !GetWorld()) return;
-
-    for (auto OneWeaponData : WeaponData)
-    {
-        auto Weapon = GetWorld()->SpawnActor<ASTUBaseWeapon>(OneWeaponData.WeaponClass);
-
-        if (!Weapon) continue;
-
-        Weapon->OnClipEmpty.AddUObject(this, &USTUWeaponComponent::OnEmptyClip);
-        Weapon->SetOwner(Character);
-        Armory.Add(Weapon);
-        AttachWeaponToSocket(Weapon, Character->GetMesh(), WeaponArmorySocketName);
-    }
-}
-
-void USTUWeaponComponent::AttachWeaponToSocket(ASTUBaseWeapon* Weapon, USceneComponent* SceneComponent, const FName& SocketName)
-{
-    if (!Weapon || !SceneComponent) return;
-    
-    const FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, false);
-    Weapon->AttachToComponent(SceneComponent, AttachmentRules, SocketName);
-}
-
 void USTUWeaponComponent::EquipWeapon(int32 WeaponIndex)
 {
     if (WeaponIndex < 0 || WeaponIndex > Armory.Num())
@@ -152,6 +125,43 @@ void USTUWeaponComponent::EquipWeapon(int32 WeaponIndex)
     AttachWeaponToSocket(CurrentWeapon, Character->GetMesh(), WeaponEquippedSocketName);
     EquipAnimInProgress = true;
     PlayAnimMontage(EquipAnimMontage);
+}
+
+bool USTUWeaponComponent::CanFire() const
+{
+    return CurrentWeapon && !EquipAnimInProgress && !ReloadAnimInProgress;
+}
+
+bool USTUWeaponComponent::CanEquip() const
+{
+    return !EquipAnimInProgress && !ReloadAnimInProgress;
+}
+
+void USTUWeaponComponent::SpawnWeapons()
+{
+    ACharacter* Character = Cast<ACharacter>(GetOwner());
+
+    if (!Character || !GetWorld()) return;
+
+    for (auto OneWeaponData : WeaponData)
+    {
+        auto Weapon = GetWorld()->SpawnActor<ASTUBaseWeapon>(OneWeaponData.WeaponClass);
+
+        if (!Weapon) continue;
+
+        Weapon->OnClipEmpty.AddUObject(this, &USTUWeaponComponent::OnEmptyClip);
+        Weapon->SetOwner(Character);
+        Armory.Add(Weapon);
+        AttachWeaponToSocket(Weapon, Character->GetMesh(), WeaponArmorySocketName);
+    }
+}
+
+void USTUWeaponComponent::AttachWeaponToSocket(ASTUBaseWeapon* Weapon, USceneComponent* SceneComponent, const FName& SocketName)
+{
+    if (!Weapon || !SceneComponent) return;
+    
+    const FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, false);
+    Weapon->AttachToComponent(SceneComponent, AttachmentRules, SocketName);
 }
 
 void USTUWeaponComponent::PlayAnimMontage(UAnimMontage* Animation)
@@ -204,16 +214,6 @@ void USTUWeaponComponent::OnReloadFinished(USkeletalMeshComponent* MeshComp)
     if (!Character || MeshComp != Character->GetMesh()) return;
     
     ReloadAnimInProgress = false;
-}
-
-bool USTUWeaponComponent::CanFire() const
-{
-    return CurrentWeapon && !EquipAnimInProgress && !ReloadAnimInProgress;
-}
-
-bool USTUWeaponComponent::CanEquip() const
-{
-    return !EquipAnimInProgress && !ReloadAnimInProgress;
 }
 
 bool USTUWeaponComponent::CanReload() const
